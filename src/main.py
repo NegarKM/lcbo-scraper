@@ -2,7 +2,7 @@ import requests
 import json
 import os
 from datetime import datetime
-from src.settings.config import LCBOConfig
+from settings.config import LCBOConfig
 
 
 headers = {
@@ -17,12 +17,12 @@ payload = {
     'sortCriteria': '@ec_final_price ascending',
 }
 
-FILE_PATH = f"../etc/files/drinks/{datetime.now().date()}"
+FILE_PATH = f"etc/files/drinks/{datetime.now().date()}"
 if not os.path.exists(FILE_PATH):
     os.makedirs(FILE_PATH)
 
 firstResult = 0
-numberOfResults = 100
+numberOfResults = 1000
 price = 0
 last_price = 0
 while True:
@@ -47,8 +47,10 @@ while True:
         drink_uniqueid = drink["UniqueId"].replace("/", "_")
         last_price = drink["raw"]["ec_final_price"]
         fileName = f"{FILE_PATH}/{drink_uniqueid}.json"
-        file = open(fileName, "w+")
-        file.write(json.dumps(drink, indent=4, sort_keys=True))
+        if os.path.exists(fileName):
+            print(f"FILE ALREADY EXISTS: {fileName}")
+        with open(fileName, 'w') as file:
+            file.write(json.dumps(drink, indent=4, sort_keys=True))
         file.close()
 
     firstResult += numberOfResults
